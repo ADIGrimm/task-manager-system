@@ -9,7 +9,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,11 +31,11 @@ public class User implements UserDetails {
     private Long id;
     @Column(unique = true, nullable = false)
     private String email;
-    @NotNull
+    @Column(nullable = false)
     private String password;
-    @NotNull
+    @Column(nullable = false)
     private String firstName;
-    @NotNull
+    @Column(nullable = false)
     private String lastName;
     @Column(columnDefinition = "TINYINT(1)", nullable = false)
     private boolean isDeleted;

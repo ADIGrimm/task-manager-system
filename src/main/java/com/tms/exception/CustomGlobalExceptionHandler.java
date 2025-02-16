@@ -1,7 +1,6 @@
 package com.tms.exception;
 
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpHeaders;
@@ -23,34 +22,36 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
             MethodArgumentNotValidException ex,
             HttpHeaders headers, HttpStatusCode status, WebRequest request
     ) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.BAD_REQUEST);
         List<String> errors = ex.getBindingResult().getAllErrors().stream()
                 .map(this::getErrorMessage)
                 .toList();
-        body.put("errors", errors);
-        return new ResponseEntity<>(body, headers, HttpStatus.BAD_REQUEST);
+
+        return ResponseEntity.badRequest().body(Map.of(
+                "timestamp", LocalDateTime.now(),
+                "status", HttpStatus.BAD_REQUEST.value(),
+                "errors", errors
+        ));
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.NOT_FOUND);
-        body.put("error", "Entity not found");
-        body.put("message", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+        return createExceptionBody("Entity not found", HttpStatus.NOT_FOUND, ex);
     }
 
     @ExceptionHandler(RegistrationException.class)
     public ResponseEntity<Object> handleRegistrationException(RegistrationException ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.CONFLICT);
-        body.put("error", "Registration problem");
-        body.put("message", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+        return createExceptionBody("Registration problem", HttpStatus.CONFLICT, ex);
+    }
+
+    private ResponseEntity<Object> createExceptionBody(
+            String message, HttpStatus status, Exception ex
+    ) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                "timestamp", LocalDateTime.now(),
+                "status", status,
+                "error", message,
+                "message", ex.getMessage()
+        ));
     }
 
     private String getErrorMessage(ObjectError e) {
