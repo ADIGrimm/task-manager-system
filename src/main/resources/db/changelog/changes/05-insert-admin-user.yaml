@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-admin-user
+      author: SD
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: email
+                  value: "admin@email.com"
+              - column:
+                  name: password
+                  value: "$2a$10$W1dCFBzZcu2ErBldCPWbkug1MhJMmzv8w58PCsaofB4h3E3zjmYhO"
+              - column:
+                  name: first_name
+                  value: "admin"
+              - column:
+                  name: last_name
+                  value: "admin"
+              - column:
+                  name: is_deleted
+                  valueBoolean: false
