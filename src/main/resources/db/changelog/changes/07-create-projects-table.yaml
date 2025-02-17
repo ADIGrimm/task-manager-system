@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-projects-table
+      author: SD
+      changes:
+        - createTable:
+            tableName: projects
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: start_date
+                  type: date
+              - column:
+                  name: end_date
+                  type: date
+              - column:
+                  name: status
+                  type: "ENUM('INITIATED', 'IN_PROGRESS', 'COMPLETED')"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - addForeignKeyConstraint:
+                  baseTableName: projects
+                  baseColumnNames: user_id
+                  constraintName: fk_project_user_id
+                  referencedTableName: users
+                  referencedColumnNames: id
+                  onDelete: CASCADE

@@ -11,3 +11,5 @@ databaseChangeLog:
       file: db/changelog/changes/05-insert-admin-user.yaml
   - include:
       file: db/changelog/changes/06-create-association-role-for-admin.yaml
+  - include:
+      file: db/changelog/changes/07-create-projects-table.yaml
