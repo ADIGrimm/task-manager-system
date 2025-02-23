@@ -17,25 +17,25 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
-    private final ProjectMapper mapper;
+    private final ProjectMapper projectMapper;
     private final UserRepository userRepository;
 
     @Override
     public ProjectDto save(Long userId, CreateProjectRequestDto requestDto) {
-        Project project = mapper.toModel(requestDto);
+        Project project = projectMapper.toModel(requestDto);
         project.setUserId(userRepository.findById(userId).orElseThrow(
                 () -> new EntityNotFoundException("User not found with id: " + userId)));
-        return mapper.toDto(projectRepository.save(project));
+        return projectMapper.toDto(projectRepository.save(project));
     }
 
     @Override
     public Page<ProjectDto> getAll(Pageable pageable) {
-        return projectRepository.findAll(pageable).map(mapper::toDto);
+        return projectRepository.findAll(pageable).map(projectMapper::toDto);
     }
 
     @Override
     public ProjectDto getById(Long id) {
-        return mapper.toDto(projectRepository.findById(id).orElseThrow(
+        return projectMapper.toDto(projectRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Can't find project by id " + id)));
     }
 
@@ -43,9 +43,9 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectDto update(Long id, CreateProjectRequestDto requestDto) {
         Project project = projectRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Can't find project by id " + id));
-        mapper.updateProject(requestDto, project);
+        projectMapper.updateProject(requestDto, project);
         projectRepository.save(project);
-        return mapper.toDto(project);
+        return projectMapper.toDto(project);
     }
 
     @Override
