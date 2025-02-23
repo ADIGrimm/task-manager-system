@@ -1,0 +1,61 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-tasks-table
+      author: SD
+      changes:
+        - createTable:
+            tableName: tasks
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: priority
+                  type: "ENUM('LOW', 'MEDIUM', 'HIGH')"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: "ENUM('NOT_STARTED', 'IN_PROGRESS', 'COMPLETED')"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: due_date
+                  type: date
+              - column:
+                  name: project_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - addForeignKeyConstraint:
+                  constraintName: fk_task_project
+                  baseTableName: tasks
+                  baseColumnNames: project_id
+                  referencedTableName: projects
+                  referencedColumnNames: id
+                  onDelete: CASCADE
+              - addForeignKeyConstraint:
+                  constraintName: fk_task_user
+                  baseTableName: tasks
+                  baseColumnNames: user_id
+                  referencedTableName: users
+                  referencedColumnNames: id
+                  onDelete: CASCADE

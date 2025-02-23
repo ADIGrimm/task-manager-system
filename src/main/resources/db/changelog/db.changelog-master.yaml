@@ -13,3 +13,5 @@ databaseChangeLog:
       file: db/changelog/changes/06-create-association-role-for-admin.yaml
   - include:
       file: db/changelog/changes/07-create-projects-table.yaml
+  - include:
+      file: db/changelog/changes/08-create-tasks-table.yaml

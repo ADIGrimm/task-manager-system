@@ -18,25 +18,36 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "projects")
-public class Project {
+@Table(name = "tasks")
+public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
     private String name;
     private String description;
-    private LocalDate startDate;
-    private LocalDate endDate;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private ProjectStatus status;
+    private TaskPriority priority = TaskPriority.LOW;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TaskStatus status = TaskStatus.NOT_STARTED;
+    private LocalDate dueDate = LocalDate.now();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id", nullable = false)
+    private Project project;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User userId;
+    private User assignee;
 
-    public enum ProjectStatus {
-        INITIATED,
+    public enum TaskPriority {
+        LOW,
+        MEDIUM,
+        HIGH
+    }
+
+    public enum TaskStatus {
+        NOT_STARTED,
         IN_PROGRESS,
         COMPLETED
     }
