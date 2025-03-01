@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-super-admin-role
+      author: SD
+      changes:
+        - insert:
+            tableName: roles
+            columns:
+              - column:
+                  name: name
+                  value: "ROLE_SUPER_ADMIN"
