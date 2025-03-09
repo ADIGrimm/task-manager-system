@@ -19,3 +19,5 @@ databaseChangeLog:
       file: db/changelog/changes/09-insert-super-admin-role.yaml
   - include:
       file: db/changelog/changes/10-create-association-role-for-super-admin.yaml
+  - include:
+      file: db/changelog/changes/11-create-comments-table.yaml
