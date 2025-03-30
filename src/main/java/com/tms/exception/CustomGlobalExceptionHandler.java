@@ -43,6 +43,11 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         return createExceptionBody("Registration problem", HttpStatus.CONFLICT, ex);
     }
 
+    @ExceptionHandler(UploadException.class)
+    public ResponseEntity<Object> handleUploadException(UploadException ex) {
+        return createExceptionBody("Upload file problem", HttpStatus.I_AM_A_TEAPOT, ex);
+    }
+
     private ResponseEntity<Object> createExceptionBody(
             String message, HttpStatus status, Exception ex
     ) {

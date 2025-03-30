@@ -7,6 +7,7 @@ import com.tms.mapper.ProjectMapper;
 import com.tms.model.Project;
 import com.tms.repository.project.ProjectRepository;
 import com.tms.repository.user.UserRepository;
+import com.tms.service.DropboxService;
 import com.tms.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,13 +20,16 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final ProjectMapper projectMapper;
     private final UserRepository userRepository;
+    private final DropboxService dropboxService;
 
     @Override
     public ProjectDto save(Long userId, CreateProjectRequestDto requestDto) {
         Project project = projectMapper.toModel(requestDto);
         project.setUserId(userRepository.findById(userId).orElseThrow(
                 () -> new EntityNotFoundException("User not found with id: " + userId)));
-        return projectMapper.toDto(projectRepository.save(project));
+        projectRepository.save(project);
+        dropboxService.createFolder("projects/" + project.getId());
+        return projectMapper.toDto(project);
     }
 
     @Override
@@ -50,6 +54,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public void deleteById(Long id) {
+        dropboxService.deleteFolder("projects/" + id);
         projectRepository.deleteById(id);
     }
 }

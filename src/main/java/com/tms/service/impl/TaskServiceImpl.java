@@ -8,6 +8,7 @@ import com.tms.model.Task;
 import com.tms.repository.project.ProjectRepository;
 import com.tms.repository.task.TaskRepository;
 import com.tms.repository.user.UserRepository;
+import com.tms.service.DropboxService;
 import com.tms.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskMapper taskMapper;
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
+    private final DropboxService dropboxService;
 
     @Override
     public TaskDto save(Long userId, CreateTaskRequestDto requestDto) {
@@ -31,7 +33,11 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Project not found with id: " + requestDto.projectId()
                 )));
-        return taskMapper.toDto(taskRepository.save(task));
+        taskRepository.save(task);
+        dropboxService.createFolder(
+                "projects/" + requestDto.projectId() + "/tasks/" + task.getId()
+        );
+        return taskMapper.toDto(task);
     }
 
     @Override
@@ -56,6 +62,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void deleteById(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Can't find task by id " + id));
+        dropboxService.deleteFolder("projects/" + task.getProject().getId() + "/tasks/" + id);
         taskRepository.deleteById(id);
     }
 }
