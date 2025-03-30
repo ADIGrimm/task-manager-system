@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-attachments-table
+      author: SD
+      changes:
+        - createTable:
+            tableName: attachments
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: file_id
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: file_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: file_path
+                  type: text
+              - column:
+                  name: upload_date
+                  type: datetime
+                  constraints:
+                    nullable: false
+              - column:
+                  name: task_id
+                  type: BIGINT
+              - addForeignKeyConstraint:
+                  constraintName: fk_attachment_task
+                  baseTableName: attachments
+                  baseColumnNames: task_id
+                  referencedTableName: tasks
+                  referencedColumnNames: id
+                  onDelete: CASCADE
