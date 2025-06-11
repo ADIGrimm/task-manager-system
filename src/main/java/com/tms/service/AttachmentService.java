@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface AttachmentService {
-    AttachmentDto upload(MultipartFile file, Long taskId);
+    AttachmentDto upload(Long userId, MultipartFile file, Long taskId);
 
-    List<byte[]> retrieveAttachmentsFromTask(Long taskId);
+    List<byte[]> retrieveAttachmentsFromTask(Long userId, Long taskId);
 }

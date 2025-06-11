@@ -1,4 +1,4 @@
-package com.tms.service;
+package com.tms.service.impl;
 
 import com.tms.dto.attachment.external.UploadResponseDataDto;
 import com.tms.exception.UploadException;

@@ -37,7 +37,7 @@ public class Task {
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "assignee_id", nullable = false)
     private User assignee;
 
     public enum TaskPriority {

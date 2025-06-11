@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,34 +31,39 @@ public class LabelController implements UserContextHelper {
     private final LabelService labelService;
 
     @Operation(summary = "Create label",
-            description = "Create label")
+            description = "Create label for task")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public LabelDto createLabel(@Valid @RequestBody CreateLabelRequestDto labelDto) {
-        return labelService.save(labelDto);
+    public LabelDto createLabel(Authentication authentication,
+                                @Valid @RequestBody CreateLabelRequestDto labelDto) {
+        return labelService.save(getUserId(authentication), labelDto);
     }
 
     @Operation(summary = "Get all labels",
-            description = "Return list of labels as page")
-    @GetMapping
-    public Page<LabelDto> getAll(@ParameterObject @PageableDefault Pageable pageable) {
-        return labelService.getAll(pageable);
+            description = "Return page of labels of certain project as page")
+    @GetMapping("/{id}")
+    public Page<LabelDto> getAll(Authentication authentication,
+                                 @PathVariable Long id,
+                                 @ParameterObject @PageableDefault Pageable pageable) {
+        return labelService.getAll(getUserId(authentication), id, pageable);
     }
 
     @Operation(summary = "Update label information",
             description = "Update label information")
     @PutMapping("/{id}")
-    public LabelDto updateLabel(@PathVariable Long id,
-                                    @Valid @RequestBody CreateLabelRequestDto labelDto) {
-        return labelService.update(id, labelDto);
+    public LabelDto updateLabel(Authentication authentication,
+                                @PathVariable Long id,
+                                @Valid @RequestBody CreateLabelRequestDto labelDto) {
+        return labelService.update(getUserId(authentication), id, labelDto);
     }
 
     @Operation(summary = "Delete label by id",
             description = "Delete label by id")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteLabel(@PathVariable Long id) {
-        labelService.deleteById(id);
+    public void deleteLabel(Authentication authentication,
+                            @PathVariable Long id) {
+        labelService.deleteById(getUserId(authentication), id);
     }
 }
 

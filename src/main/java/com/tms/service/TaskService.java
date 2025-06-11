@@ -8,11 +8,11 @@ import org.springframework.data.domain.Pageable;
 public interface TaskService {
     TaskDto save(Long userId, CreateTaskRequestDto taskDto);
 
-    Page<TaskDto> getAll(Pageable pageable);
+    Page<TaskDto> getAllFromProject(Long userId, Long projectId, Pageable pageable);
 
-    TaskDto getById(Long id);
+    TaskDto getById(Long userId, Long id);
 
-    TaskDto update(Long id, CreateTaskRequestDto taskDto);
+    TaskDto update(Long userId, Long id, CreateTaskRequestDto taskDto);
 
-    void deleteById(Long id);
+    void deleteById(Long userId, Long id);
 }

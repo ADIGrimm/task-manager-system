@@ -18,7 +18,6 @@ databaseChangeLog:
                   type: varchar(255)
                   constraints:
                     nullable: false
-                    unique: true
               - column:
                   name: description
                   type: text
@@ -41,7 +40,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: user_id
+                  name: assignee_id
                   type: bigint
                   constraints:
                     nullable: false
@@ -55,7 +54,7 @@ databaseChangeLog:
               - addForeignKeyConstraint:
                   constraintName: fk_task_user
                   baseTableName: tasks
-                  baseColumnNames: user_id
+                  baseColumnNames: assignee_id
                   referencedTableName: users
                   referencedColumnNames: id
                   onDelete: CASCADE
