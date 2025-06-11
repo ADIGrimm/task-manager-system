@@ -7,7 +7,6 @@ import com.tms.mapper.ProjectMapper;
 import com.tms.model.Project;
 import com.tms.repository.project.ProjectRepository;
 import com.tms.repository.user.UserRepository;
-import com.tms.service.DropboxService;
 import com.tms.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -33,28 +32,34 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Page<ProjectDto> getAll(Pageable pageable) {
-        return projectRepository.findAll(pageable).map(projectMapper::toDto);
+    public Page<ProjectDto> getAll(Long userId, Pageable pageable) {
+        return projectRepository.findAllAccessibleToUser(userId, pageable).map(projectMapper::toDto);
     }
 
     @Override
-    public ProjectDto getById(Long id) {
-        return projectMapper.toDto(projectRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Can't find project by id " + id)));
+    public ProjectDto getById(Long userId, Long projectId) {
+        return projectMapper.toDto(projectRepository.findAccessibleProject(projectId, userId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Can't find project by id " + projectId + " and user id " + userId
+                )));
     }
 
     @Override
-    public ProjectDto update(Long id, CreateProjectRequestDto requestDto) {
-        Project project = projectRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Can't find project by id " + id));
+    public ProjectDto update(Long userId, Long projectId, CreateProjectRequestDto requestDto) {
+        Project project = projectRepository.findByIdAndUserId(projectId, userId).orElseThrow(
+                () -> new EntityNotFoundException("Can't find project by id " + projectId));
         projectMapper.updateProject(requestDto, project);
         projectRepository.save(project);
         return projectMapper.toDto(project);
     }
 
     @Override
-    public void deleteById(Long id) {
-        dropboxService.deleteFolder("projects/" + id);
-        projectRepository.deleteById(id);
+    public void deleteById(Long userId, Long projectId) {
+        if (projectRepository.findByIdAndUserId(projectId, userId).isPresent()) {
+            dropboxService.deleteFolder("projects/" + projectId);
+            projectRepository.deleteById(projectId);
+        } else {
+            throw new EntityNotFoundException("Can't find project by id " + projectId + " and user id " + userId);
+        }
     }
 }

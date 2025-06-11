@@ -42,30 +42,32 @@ public class ProjectController implements UserContextHelper {
     @Operation(summary = "Get all projects",
             description = "Return list of projects as page")
     @GetMapping
-    public Page<ProjectDto> getAll(@ParameterObject @PageableDefault Pageable pageable) {
-        return projectService.getAll(pageable);
+    public Page<ProjectDto> getAll(Authentication authentication,
+                                   @ParameterObject @PageableDefault Pageable pageable) {
+        return projectService.getAll(getUserId(authentication), pageable);
     }
 
     @Operation(summary = "Get project by id",
             description = "Return project with specified id")
     @GetMapping("/{id}")
-    public ProjectDto getProjectById(@PathVariable Long id) {
-        return projectService.getById(id);
+    public ProjectDto getProjectById(Authentication authentication,
+                                     @PathVariable Long id) {
+        return projectService.getById(getUserId(authentication), id);
     }
 
     @Operation(summary = "Update project information",
             description = "Update project information")
     @PutMapping("/{id}")
-    public ProjectDto updateProject(@PathVariable Long id,
+    public ProjectDto updateProject(Authentication authentication, @PathVariable Long id,
                               @Valid @RequestBody CreateProjectRequestDto projectDto) {
-        return projectService.update(id, projectDto);
+        return projectService.update(getUserId(authentication), id, projectDto);
     }
 
     @Operation(summary = "Delete project by id",
             description = "Delete project by id")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteProject(@PathVariable Long id) {
-        projectService.deleteById(id);
+    public void deleteProject(Authentication authentication, @PathVariable Long id) {
+        projectService.deleteById(getUserId(authentication), id);
     }
 }

@@ -35,38 +35,40 @@ public class TaskController implements UserContextHelper {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TaskDto createTask(Authentication authentication,
-                                    @Valid @RequestBody CreateTaskRequestDto taskDto) {
+                              @Valid @RequestBody CreateTaskRequestDto taskDto) {
         return taskService.save(getUserId(authentication), taskDto);
     }
 
     @Operation(summary = "Get all tasks",
-            description = "Return list of tasks as page")
-    @GetMapping
-    public Page<TaskDto> getAll(@ParameterObject @PageableDefault Pageable pageable) {
-        return taskService.getAll(pageable);
+            description = "Return list of project tasks as page")
+    @GetMapping("/project/{projectId}")
+    public Page<TaskDto> getAllFromProject(Authentication authentication, @PathVariable Long projectId,
+                                @ParameterObject @PageableDefault Pageable pageable) {
+        return taskService.getAllFromProject(getUserId(authentication), projectId, pageable);
     }
 
     @Operation(summary = "Get task by id",
             description = "Return task with specified id")
     @GetMapping("/{id}")
-    public TaskDto getTaskById(@PathVariable Long id) {
-        return taskService.getById(id);
+    public TaskDto getTaskById(Authentication authentication,
+                               @PathVariable Long id) {
+        return taskService.getById(getUserId(authentication), id);
     }
 
     @Operation(summary = "Update task information",
             description = "Update task information")
     @PutMapping("/{id}")
-    public TaskDto updateTask(@PathVariable Long id,
+    public TaskDto updateTask(Authentication authentication, @PathVariable Long id,
                                     @Valid @RequestBody CreateTaskRequestDto taskDto) {
-        return taskService.update(id, taskDto);
+        return taskService.update(getUserId(authentication), id, taskDto);
     }
 
     @Operation(summary = "Delete task by id",
             description = "Delete task by id")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteTask(@PathVariable Long id) {
-        taskService.deleteById(id);
+    public void deleteTask(Authentication authentication, @PathVariable Long id) {
+        taskService.deleteById(getUserId(authentication), id);
     }
 }
 

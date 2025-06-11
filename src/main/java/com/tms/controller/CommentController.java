@@ -40,8 +40,8 @@ public class CommentController implements UserContextHelper {
     @Operation(summary = "Get all comments of task",
             description = "Return list of comments of task as page")
     @GetMapping("/{taskId}")
-    public Page<CommentDto> getAll(@PathVariable Long taskId,
+    public Page<CommentDto> getAll(Authentication authentication, @PathVariable Long taskId,
                                    @ParameterObject @PageableDefault Pageable pageable) {
-        return commentService.getAllCommentsOfTask(taskId, pageable);
+        return commentService.getAllCommentsOfTask(getUserId(authentication), taskId, pageable);
     }
 }

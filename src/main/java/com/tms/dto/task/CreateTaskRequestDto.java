@@ -15,6 +15,9 @@ public record CreateTaskRequestDto(
         LocalDate dueDate,
         @NotNull
         @Positive
-        Long projectId
+        Long projectId,
+        @NotNull
+        @Positive
+        Long assigneeId
 ) {
 }

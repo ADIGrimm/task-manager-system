@@ -20,16 +20,26 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: color
-                  type: "ENUM('RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'VIOLET')"
+                  type: varchar(20)
                   constraints:
                     nullable: false
               - column:
                   name: user_id
+                  type: BIGINT
+              - column:
+                  name: task_id
                   type: BIGINT
               - addForeignKeyConstraint:
                   constraintName: fk_label_user
                   baseTableName: labels
                   baseColumnNames: user_id
                   referencedTableName: users
+                  referencedColumnNames: id
+                  onDelete: CASCADE
+              - addForeignKeyConstraint:
+                  constraintName: fk_label_task
+                  baseTableName: labels
+                  baseColumnNames: task_id
+                  referencedTableName: tasks
                   referencedColumnNames: id
                   onDelete: CASCADE

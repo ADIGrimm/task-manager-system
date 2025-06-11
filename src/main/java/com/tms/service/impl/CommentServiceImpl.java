@@ -26,7 +26,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDto save(Long userId, CreateCommentRequestDto requestDto) {
         Comment comment = commentMapper.toModel(requestDto);
-        comment.setTask(taskRepository.findById(requestDto.taskId()).orElseThrow(
+        comment.setTask(taskRepository.findAccessibleTask(requestDto.taskId(), userId).orElseThrow(
                 () -> new EntityNotFoundException("Task not found with id: " + requestDto.taskId()
                 )));
         comment.setUser(userRepository.findById(userId).orElseThrow(
@@ -36,10 +36,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Page<CommentDto> getAllCommentsOfTask(Long taskId, Pageable pageable) {
-        taskRepository.findById(taskId).orElseThrow(
-                () -> new EntityNotFoundException("Task not found with id: " + taskId)
-        );
-        return commentRepository.findAllByTaskId(taskId, pageable).map(commentMapper::toDto);
+    public Page<CommentDto> getAllCommentsOfTask(Long userId, Long taskId, Pageable pageable) {
+        if (taskRepository.findById(taskId).isPresent()) {
+            return commentRepository.findAllByTaskIdAndAccessibleToUser(taskId, userId, pageable)
+                    .map(commentMapper::toDto);
+        } else {
+            throw new EntityNotFoundException("Task not found with id: " + taskId);
+        }
     }
 }

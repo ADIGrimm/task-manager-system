@@ -6,11 +6,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface LabelService {
-    LabelDto save(CreateLabelRequestDto labelDto);
+    LabelDto save(Long userId, CreateLabelRequestDto labelDto);
 
-    Page<LabelDto> getAll(Pageable pageable);
+    Page<LabelDto> getAll(Long userId, Long projectId, Pageable pageable);
 
-    LabelDto update(Long id, CreateLabelRequestDto labelDto);
+    LabelDto update(Long userId, Long labelId, CreateLabelRequestDto labelDto);
 
-    void deleteById(Long id);
+    void deleteById(Long userId, Long labelId);
 }

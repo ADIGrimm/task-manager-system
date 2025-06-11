@@ -8,7 +8,6 @@ import com.tms.model.Task;
 import com.tms.repository.project.ProjectRepository;
 import com.tms.repository.task.TaskRepository;
 import com.tms.repository.user.UserRepository;
-import com.tms.service.DropboxService;
 import com.tms.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,9 +26,11 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDto save(Long userId, CreateTaskRequestDto requestDto) {
         Task task = taskMapper.toModel(requestDto);
-        task.setAssignee(userRepository.findById(userId).orElseThrow(
-                () -> new EntityNotFoundException("User not found with id: " + userId)));
-        task.setProject(projectRepository.findById(requestDto.projectId())
+        task.setAssignee(userRepository.findById(requestDto.assigneeId()).orElseThrow(
+                () -> new EntityNotFoundException(
+                        "User not found with id: " + requestDto.assigneeId()
+                )));
+        task.setProject(projectRepository.findByIdAndUserId(requestDto.projectId(), userId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Project not found with id: " + requestDto.projectId()
                 )));
@@ -41,30 +42,30 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Page<TaskDto> getAll(Pageable pageable) {
-        return taskRepository.findAll(pageable).map(taskMapper::toDto);
+    public Page<TaskDto> getAllFromProject(Long userId, Long projectId, Pageable pageable) {
+        return taskRepository.findAllByProjectIdAndUserHasAccess(userId, projectId, pageable).map(taskMapper::toDto);
     }
 
     @Override
-    public TaskDto getById(Long id) {
-        return taskMapper.toDto(taskRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Can't find task by id " + id)));
+    public TaskDto getById(Long userId, Long taskId) {
+        return taskMapper.toDto(taskRepository.findAccessibleTask(taskId, userId).orElseThrow(
+                () -> new EntityNotFoundException("Can't find task by id " + taskId)));
     }
 
     @Override
-    public TaskDto update(Long id, CreateTaskRequestDto requestDto) {
-        Task task = taskRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Can't find task by id " + id));
+    public TaskDto update(Long userId, Long taskId, CreateTaskRequestDto requestDto) {
+        Task task = taskRepository.findTaskByIdAndProjectOwner(taskId, userId).orElseThrow(
+                () -> new EntityNotFoundException("Can't find task by id " + taskId));
         taskMapper.updateTask(requestDto, task);
         taskRepository.save(task);
         return taskMapper.toDto(task);
     }
 
     @Override
-    public void deleteById(Long id) {
-        Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Can't find task by id " + id));
-        dropboxService.deleteFolder("projects/" + task.getProject().getId() + "/tasks/" + id);
-        taskRepository.deleteById(id);
+    public void deleteById(Long userId, Long taskId) {
+        Task task = taskRepository.findTaskByIdAndProjectOwner(taskId, userId)
+                .orElseThrow(() -> new EntityNotFoundException("Can't find task by id " + taskId));
+        dropboxService.deleteFolder("projects/" + task.getProject().getId() + "/tasks/" + taskId);
+        taskRepository.deleteById(taskId);
     }
 }
