@@ -33,7 +33,8 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Page<ProjectDto> getAll(Long userId, Pageable pageable) {
-        return projectRepository.findAllAccessibleToUser(userId, pageable).map(projectMapper::toDto);
+        return projectRepository
+                .findAllAccessibleToUser(userId, pageable).map(projectMapper::toDto);
     }
 
     @Override
@@ -59,7 +60,9 @@ public class ProjectServiceImpl implements ProjectService {
             dropboxService.deleteFolder("projects/" + projectId);
             projectRepository.deleteById(projectId);
         } else {
-            throw new EntityNotFoundException("Can't find project by id " + projectId + " and user id " + userId);
+            throw new EntityNotFoundException(
+                    "Can't find project by id " + projectId + " and user id " + userId
+            );
         }
     }
 }

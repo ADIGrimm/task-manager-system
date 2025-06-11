@@ -2,7 +2,6 @@ package com.tms.validation.color;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-
 import java.util.regex.Pattern;
 
 public class HtmlColorValidator implements ConstraintValidator<HtmlColor, String> {

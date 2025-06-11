@@ -1,14 +1,13 @@
 package com.tms.repository.label;
 
 import com.tms.model.Label;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.util.Optional;
 
 public interface LabelRepository
         extends JpaRepository<Label, Long>, JpaSpecificationExecutor<Label> {
@@ -20,7 +19,6 @@ public interface LabelRepository
     Page<Label> findAllLabelsByProjectIdAndAccessibleToUser(
             @Param("projectId") Long projectId, @Param("userId") Long userId, Pageable pageable
     );
-
 
     @Query("SELECT l FROM Label l WHERE l.id = :labelId AND "
             + "(l.task.project.userId.id = :userId OR l.task.assignee.id = :userId)")

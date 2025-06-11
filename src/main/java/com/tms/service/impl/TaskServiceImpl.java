@@ -43,7 +43,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Page<TaskDto> getAllFromProject(Long userId, Long projectId, Pageable pageable) {
-        return taskRepository.findAllByProjectIdAndUserHasAccess(userId, projectId, pageable).map(taskMapper::toDto);
+        return taskRepository.findAllByProjectIdAndUserHasAccess(userId, projectId, pageable)
+                .map(taskMapper::toDto);
     }
 
     @Override

@@ -42,8 +42,11 @@ public class TaskController implements UserContextHelper {
     @Operation(summary = "Get all tasks",
             description = "Return list of project tasks as page")
     @GetMapping("/project/{projectId}")
-    public Page<TaskDto> getAllFromProject(Authentication authentication, @PathVariable Long projectId,
-                                @ParameterObject @PageableDefault Pageable pageable) {
+    public Page<TaskDto> getAllFromProject(
+            Authentication authentication,
+            @PathVariable Long projectId,
+            @ParameterObject @PageableDefault Pageable pageable
+    ) {
         return taskService.getAllFromProject(getUserId(authentication), projectId, pageable);
     }
 
