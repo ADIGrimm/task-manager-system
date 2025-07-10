@@ -5,9 +5,11 @@ import com.tms.dto.task.TaskDto;
 import com.tms.exception.EntityNotFoundException;
 import com.tms.mapper.TaskMapper;
 import com.tms.model.Task;
+import com.tms.model.User;
 import com.tms.repository.project.ProjectRepository;
 import com.tms.repository.task.TaskRepository;
 import com.tms.repository.user.UserRepository;
+import com.tms.service.NotificationService;
 import com.tms.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,14 +24,16 @@ public class TaskServiceImpl implements TaskService {
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
     private final DropboxService dropboxService;
+    private final NotificationService notificationService;
 
     @Override
     public TaskDto save(Long userId, CreateTaskRequestDto requestDto) {
         Task task = taskMapper.toModel(requestDto);
-        task.setAssignee(userRepository.findById(requestDto.assigneeId()).orElseThrow(
-                () -> new EntityNotFoundException(
-                        "User not found with id: " + requestDto.assigneeId()
-                )));
+        User user = userRepository.findById(requestDto.assigneeId()).orElseThrow(
+                        () -> new EntityNotFoundException(
+                                "User not found with id: " + requestDto.assigneeId()
+                        ));
+        task.setAssignee(user);
         task.setProject(projectRepository.findByIdAndUserId(requestDto.projectId(), userId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Project not found with id: " + requestDto.projectId()
@@ -38,6 +42,7 @@ public class TaskServiceImpl implements TaskService {
         dropboxService.createFolder(
                 "projects/" + requestDto.projectId() + "/tasks/" + task.getId()
         );
+        notificationService.sendTaskAssignedEmail(user, task);
         return taskMapper.toDto(task);
     }
 

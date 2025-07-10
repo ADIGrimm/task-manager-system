@@ -126,6 +126,8 @@
 			<artifactId>mockito-core</artifactId>
 			<version>5.14.2</version>
 			<scope>test</scope>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 	</dependencies>
 
