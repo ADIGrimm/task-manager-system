@@ -1,0 +1,3 @@
+DELETE FROM comments;
+
+ALTER TABLE comments ALTER COLUMN id RESTART WITH 1;
