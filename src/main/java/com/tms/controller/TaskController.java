@@ -4,6 +4,7 @@ import com.tms.dto.task.CreateTaskRequestDto;
 import com.tms.dto.task.TaskDto;
 import com.tms.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Tasks", description = "Operations related to tasks")
 @RestController
 @RequestMapping("/tasks")
 @RequiredArgsConstructor

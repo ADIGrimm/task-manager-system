@@ -1,13 +1,17 @@
 package com.tms.controller;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -103,7 +107,7 @@ public class CommentControllerTest implements UserNeeded {
     }
 
     @Test
-    void createComment_ValidRequestDto_Success() throws Exception {
+    void createComment_ValidRequest_Success() throws Exception {
         // Given
         CreateCommentRequestDto requestDto = new CreateCommentRequestDto(
                 1L,
@@ -131,7 +135,25 @@ public class CommentControllerTest implements UserNeeded {
         );
         // Then
         assertNotNull(actual);
-        EqualsBuilder.reflectionEquals(expected, actual, "userId");
+        assertTrue(EqualsBuilder.reflectionEquals(expected, actual, "userId", "timestamp"));
+    }
+
+    @Test
+    void createComment_InvalidRequest_ShouldReturnBadRequest() throws Exception {
+        CreateCommentRequestDto dto = new CreateCommentRequestDto(
+                0L,
+                ""
+        );
+
+        mockMvc.perform(post("/comments")
+                        .with(authentication(createAuthToken()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors").isArray())
+                .andExpect(jsonPath("$.errors.length()").value(2))
+                .andExpect(jsonPath("$.errors", hasItem(containsString("taskId"))))
+                .andExpect(jsonPath("$.errors", hasItem(containsString("text"))));
     }
 
     @Test

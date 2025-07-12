@@ -4,6 +4,7 @@ import com.tms.dto.comment.CommentDto;
 import com.tms.dto.comment.CreateCommentRequestDto;
 import com.tms.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Comments", description = "Operations related to comments")
 @RestController
 @RequestMapping("/comments")
 @RequiredArgsConstructor

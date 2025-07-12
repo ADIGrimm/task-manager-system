@@ -1,5 +1,7 @@
 package com.tms.controller;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,6 +13,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -107,7 +110,7 @@ public class ProjectControllerTest implements UserNeeded {
     }
 
     @Test
-    void createProject_ValidRequestDto_Success() throws Exception {
+    void createProject_ValidRequest_Success() throws Exception {
         // Given
         CreateProjectRequestDto requestDto = new CreateProjectRequestDto(
                 "Project",
@@ -140,7 +143,28 @@ public class ProjectControllerTest implements UserNeeded {
         // Then
         assertNotNull(actual);
         assertNotNull(actual.id());
-        EqualsBuilder.reflectionEquals(expected, actual);
+        assertTrue(EqualsBuilder.reflectionEquals(expected, actual));
+    }
+
+    @Test
+    void createProject_InvalidRequest_ShouldReturnBadRequest() throws Exception {
+        CreateProjectRequestDto dto = new CreateProjectRequestDto(
+                "",
+                "desc",
+                LocalDate.now(),
+                LocalDate.now().plusDays(1),
+                null
+        );
+
+        mockMvc.perform(post("/projects")
+                        .with(authentication(createAuthToken()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors").isArray())
+                .andExpect(jsonPath("$.errors.length()").value(2))
+                .andExpect(jsonPath("$.errors", hasItem(containsString("name"))))
+                .andExpect(jsonPath("$.errors", hasItem(containsString("status"))));
     }
 
     @Test
@@ -205,7 +229,19 @@ public class ProjectControllerTest implements UserNeeded {
         // Then
         assertNotNull(actual);
         assertNotNull(actual.id());
-        EqualsBuilder.reflectionEquals(expected, actual, "id");
+        assertTrue(EqualsBuilder.reflectionEquals(expected, actual, "id"));
+    }
+
+    @Test
+    void getProjectById_withNotExistedId_ShouldReturnNotFound() throws Exception {
+        mockMvc.perform(get("/projects/" + 5)
+                        .with(authentication(createAuthToken()))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.timestamp").isString())
+                .andExpect(jsonPath("$.message")
+                        .value(containsString("Can't find project by id 5 and user id 1")))
+                .andExpect(jsonPath("$.error").value(containsString("Entity not found")));
     }
 
     @Test
@@ -242,7 +278,7 @@ public class ProjectControllerTest implements UserNeeded {
         // Then
         assertNotNull(actual);
         assertNotNull(actual.id());
-        EqualsBuilder.reflectionEquals(expected, actual);
+        assertTrue(EqualsBuilder.reflectionEquals(expected, actual));
     }
 
     @Test
@@ -259,5 +295,10 @@ public class ProjectControllerTest implements UserNeeded {
                 .andReturn();
         // Then
         assertTrue(projectRepository.findById(deletedProjectId).isEmpty());
+    }
+
+    @Test
+    void deleteProjectById_withNotExistedId_ShouldReturnNotFound() {
+
     }
 }

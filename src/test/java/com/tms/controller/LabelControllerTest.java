@@ -1,5 +1,7 @@
 package com.tms.controller;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,6 +13,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -105,7 +108,7 @@ public class LabelControllerTest implements UserNeeded {
     }
 
     @Test
-    void createLabel_ValidRequestDto_Success() throws Exception {
+    void createLabel_ValidRequest_Success() throws Exception {
         // Given
         CreateLabelRequestDto requestDto = new CreateLabelRequestDto(
                 "Label",
@@ -134,7 +137,27 @@ public class LabelControllerTest implements UserNeeded {
         // Then
         assertNotNull(actual);
         assertNotNull(actual.id());
-        EqualsBuilder.reflectionEquals(expected, actual, "id");
+        assertTrue(EqualsBuilder.reflectionEquals(expected, actual, "id"));
+    }
+
+    @Test
+    void createLabel_InvalidRequest_ShouldReturnBadRequest() throws Exception {
+        CreateLabelRequestDto dto = new CreateLabelRequestDto(
+                "",
+                "",
+                0L
+        );
+
+        mockMvc.perform(post("/labels")
+                        .with(authentication(createAuthToken()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors").isArray())
+                .andExpect(jsonPath("$.errors.length()").value(4))
+                .andExpect(jsonPath("$.errors", hasItem(containsString("name"))))
+                .andExpect(jsonPath("$.errors", hasItem(containsString("color"))))
+                .andExpect(jsonPath("$.errors", hasItem(containsString("taskId"))));
     }
 
     @Test
@@ -170,7 +193,7 @@ public class LabelControllerTest implements UserNeeded {
         Long updatedLabelId = 3L;
         CreateLabelRequestDto requestDto = new CreateLabelRequestDto(
                 "Label 3 Updated",
-                "Label 3 desc Updated",
+                "#ffffff",
                 3L
         );
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
@@ -194,7 +217,7 @@ public class LabelControllerTest implements UserNeeded {
         // Then
         assertNotNull(actual);
         assertNotNull(actual.id());
-        EqualsBuilder.reflectionEquals(expected, actual, "id");
+        assertTrue(EqualsBuilder.reflectionEquals(expected, actual, "id"));
     }
 
     @Test
@@ -211,5 +234,16 @@ public class LabelControllerTest implements UserNeeded {
                 .andReturn();
         // Then
         assertTrue(labelRepository.findById(deletedLabelId).isEmpty());
+    }
+
+    @Test
+    void deleteTaskById_withNotExistedId_ShouldReturnNotFound() throws Exception {
+        mockMvc.perform(delete("/labels/" + 5)
+                        .with(authentication(createAuthToken()))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.timestamp").isString())
+                .andExpect(jsonPath("$.message").value(containsString("Can't find label by id: 5")))
+                .andExpect(jsonPath("$.error").value(containsString("Entity not found")));
     }
 }

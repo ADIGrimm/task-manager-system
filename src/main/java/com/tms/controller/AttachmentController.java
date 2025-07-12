@@ -3,6 +3,7 @@ package com.tms.controller;
 import com.tms.dto.attachment.internal.AttachmentDto;
 import com.tms.service.AttachmentService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+@Tag(name = "Attachments", description = "Operations related to attachments")
 @RestController
 @RequestMapping("/attachments")
 @RequiredArgsConstructor

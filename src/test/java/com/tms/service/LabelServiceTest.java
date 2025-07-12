@@ -130,6 +130,8 @@ public class LabelServiceTest {
         );
         when(labelRepository.findAccessibleLabelById(anyLong(), anyLong()))
                 .thenReturn(Optional.of(label));
+        when(taskRepository.findAccessibleTask(any(), any()))
+                .thenReturn(Optional.of(new Task()));
         // When
         labelService.update(1L, labelId, requestDto);
         // Then
