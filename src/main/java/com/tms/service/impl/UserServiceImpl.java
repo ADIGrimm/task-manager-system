@@ -36,7 +36,9 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toModel(requestDto);
         user.setPassword(passwordEncoder.encode(requestDto.password()));
         user.setRoles(Set.of(roleRepository.findByName(Role.RoleName.ROLE_USER)
-                .orElseThrow(() -> new EntityNotFoundException("Can't find role"))));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Can't find role " + Role.RoleName.ROLE_USER)
+                )));
         userRepository.save(user);
         return userMapper.toDto(user);
     }
@@ -55,7 +57,9 @@ public class UserServiceImpl implements UserService {
                                 () -> new EntityNotFoundException("Role not found: " + roleName)))
                 .collect(Collectors.toSet());
         if (requestDto.roles().contains(Role.RoleName.ROLE_SUPER_ADMIN)) {
-            throw new IllegalArgumentException("You cannot assign ROLE_SUPER_ADMIN.");
+            throw new IllegalArgumentException(
+                    "You cannot assign " + Role.RoleName.ROLE_SUPER_ADMIN
+            );
         }
         userMapper.updateRoles(requestDto, user);
         user.setRoles(updatedRoles);

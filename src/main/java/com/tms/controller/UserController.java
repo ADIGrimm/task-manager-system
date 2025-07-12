@@ -5,18 +5,18 @@ import com.tms.dto.user.UserResponseDto;
 import com.tms.dto.user.UserUpdateRoleRequestDto;
 import com.tms.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Users", description = "Operations related to users")
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -28,7 +28,6 @@ public class UserController implements UserContextHelper {
     @Operation(summary = "Update user roles",
             description = "Update user roles and returns OK status on success")
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN')")
-    @ResponseStatus(HttpStatus.OK)
     public void updateRoles(@Valid @RequestBody UserUpdateRoleRequestDto requestDto) {
         userService.updateRoles(requestDto);
     }

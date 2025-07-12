@@ -1,5 +1,7 @@
 package com.tms.controller;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,6 +13,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -107,7 +110,7 @@ public class TaskControllerTest implements UserNeeded {
     }
 
     @Test
-    void createTask_ValidRequestDto_Success() throws Exception {
+    void createTask_ValidRequest_Success() throws Exception {
         // Given
         CreateTaskRequestDto requestDto = new CreateTaskRequestDto(
                 "Task",
@@ -144,7 +147,31 @@ public class TaskControllerTest implements UserNeeded {
         // Then
         assertNotNull(actual);
         assertNotNull(actual.id());
-        EqualsBuilder.reflectionEquals(expected, actual, "id");
+        assertTrue(EqualsBuilder.reflectionEquals(expected, actual, "id"));
+    }
+
+    @Test
+    void createTask_InvalidRequest_ShouldReturnBadRequest() throws Exception {
+        CreateTaskRequestDto dto = new CreateTaskRequestDto(
+                "",
+                "desc",
+                Task.TaskPriority.LOW,
+                Task.TaskStatus.COMPLETED,
+                LocalDate.now(),
+                0L,
+                0L
+        );
+
+        mockMvc.perform(post("/tasks")
+                        .with(authentication(createAuthToken()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors").isArray())
+                .andExpect(jsonPath("$.errors.length()").value(3))
+                .andExpect(jsonPath("$.errors", hasItem(containsString("name"))))
+                .andExpect(jsonPath("$.errors", hasItem(containsString("assigneeId"))))
+                .andExpect(jsonPath("$.errors", hasItem(containsString("projectId"))));
     }
 
     @Test
@@ -197,13 +224,13 @@ public class TaskControllerTest implements UserNeeded {
         Long necessaryTaskId = 2L;
         TaskDto expected = new TaskDto(
                 necessaryTaskId,
-                "Task 4",
-                "Task 4 desc",
+                "Task 2",
+                "Task 2 desc",
                 Task.TaskPriority.MEDIUM,
-                Task.TaskStatus.COMPLETED,
-                LocalDate.of(2000, 6, 4),
-                3L,
-                2L
+                Task.TaskStatus.IN_PROGRESS,
+                LocalDate.of(2000, 6, 2),
+                1L,
+                3L
         );
         // When
         MvcResult result = mockMvc.perform(
@@ -218,7 +245,18 @@ public class TaskControllerTest implements UserNeeded {
         // Then
         assertNotNull(actual);
         assertNotNull(actual.id());
-        EqualsBuilder.reflectionEquals(expected, actual, "id");
+        assertTrue(EqualsBuilder.reflectionEquals(expected, actual, "id"));
+    }
+
+    @Test
+    void getTaskById_withNotExistedId_ShouldReturnNotFound() throws Exception {
+        mockMvc.perform(get("/tasks/" + 6)
+                        .with(authentication(createAuthToken()))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.timestamp").isString())
+                .andExpect(jsonPath("$.message").value(containsString("Can't find task by id 6")))
+                .andExpect(jsonPath("$.error").value(containsString("Entity not found")));
     }
 
     @Test
@@ -259,7 +297,7 @@ public class TaskControllerTest implements UserNeeded {
         // Then
         assertNotNull(actual);
         assertNotNull(actual.id());
-        EqualsBuilder.reflectionEquals(expected, actual, "id");
+        assertTrue(EqualsBuilder.reflectionEquals(expected, actual, "id"));
     }
 
     @Test

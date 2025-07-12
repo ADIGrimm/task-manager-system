@@ -4,6 +4,7 @@ import com.tms.dto.project.CreateProjectRequestDto;
 import com.tms.dto.project.ProjectDto;
 import com.tms.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Projects", description = "Operations related to projects")
 @RestController
 @RequestMapping("/projects")
 @RequiredArgsConstructor
@@ -42,7 +44,6 @@ public class ProjectController implements UserContextHelper {
     @Operation(summary = "Get all projects",
             description = "Return list of projects as page")
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public Page<ProjectDto> getAll(Authentication authentication,
                                    @ParameterObject @PageableDefault Pageable pageable) {
         return projectService.getAll(getUserId(authentication), pageable);
@@ -51,7 +52,6 @@ public class ProjectController implements UserContextHelper {
     @Operation(summary = "Get project by id",
             description = "Return project with specified id")
     @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
     public ProjectDto getProjectById(Authentication authentication,
                                      @PathVariable Long id) {
         return projectService.getById(getUserId(authentication), id);
@@ -60,7 +60,6 @@ public class ProjectController implements UserContextHelper {
     @Operation(summary = "Update project information",
             description = "Update project information")
     @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
     public ProjectDto updateProject(Authentication authentication, @PathVariable Long id,
                               @Valid @RequestBody CreateProjectRequestDto projectDto) {
         return projectService.update(getUserId(authentication), id, projectDto);

@@ -42,6 +42,9 @@ public class LabelServiceImpl implements LabelService {
                 () -> new EntityNotFoundException("Can't find label by id: " + labelId)
         );
         labelMapper.updateLabel(labelDto, label);
+        label.setTask(taskRepository.findAccessibleTask(labelDto.taskId(), userId).orElseThrow(
+                () -> new EntityNotFoundException("Can't find task by id: " + labelDto.taskId())
+        ));
         labelRepository.save(label);
         return labelMapper.toDto(label);
     }
